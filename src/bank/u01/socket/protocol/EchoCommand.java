@@ -26,6 +26,11 @@ public class EchoCommand extends SocketCommand {
 		this.text = stream.readUTF();
 	}
 
+	@Override
+	public String getType() {
+		return TYPE;
+	}
+
 	public String getText() {
 		return text;
 	}
