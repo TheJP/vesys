@@ -27,12 +27,20 @@ public abstract class SocketCommand {
 	}
 
 	/**
-	 * Write the command with parameter to the stream
+	 * Write the parameters to the stream
 	 * @param stream
 	 * @return
 	 */
-	public void write(DataOutput stream) throws IOException {
+	protected abstract void write(DataOutput stream) throws IOException;
+	
+	/**
+	 * Send the command and the parameters over the stream
+	 * @param stream
+	 * @throws IOException
+	 */
+	public void send(DataOutput stream) throws IOException {
 		stream.writeUTF(getType());
+		write(stream);
 	}
 	/**
 	 * Read the command parameters from the stream

@@ -17,7 +17,7 @@ public class EchoCommand extends SocketCommand {
 	}
 
 	@Override
-	public void write(DataOutput stream) throws IOException {
+	protected void write(DataOutput stream) throws IOException {
 		stream.writeUTF(this.text);
 	}
 

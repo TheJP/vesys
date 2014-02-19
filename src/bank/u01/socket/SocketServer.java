@@ -9,9 +9,7 @@ import java.util.concurrent.Executors;
 
 import bank.Bank;
 import bank.local.LocalBank;
-import bank.u01.socket.protocol.EchoCommand;
-import bank.u01.socket.protocol.SocketCommand;
-import bank.u01.socket.protocol.SocketCommand.SocketCommandFactory;
+import bank.u01.socket.protocol.SocketUtil;
 
 /**
  * 
@@ -84,18 +82,8 @@ public class SocketServer implements Runnable {
 		}
 	}
 
-	/**
-	 * Add all CommandFactories
-	 */
-	private static void registerCommands(){
-		SocketCommand.addCommandFactory(new SocketCommandFactory() {
-			@Override public String getType() { return EchoCommand.TYPE; }
-			@Override public SocketCommand createCommand() { return new EchoCommand(); }
-		});
-	}
-
 	public static void main(String[] args) {
-		registerCommands();
+		SocketUtil.registerCommands();
 		Scanner scanner = new Scanner(System.in);
 		//Start the Server
 		Bank b = new LocalBank();

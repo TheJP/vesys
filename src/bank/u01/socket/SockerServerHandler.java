@@ -30,7 +30,8 @@ public class SockerServerHandler implements Runnable {
 			DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
 			SocketCommand inputCmd = SocketCommand.createCommand(inputStream);
 			SocketCommand outputCmd;
-			switch (inputCmd.getType()) {
+			String type = (inputCmd == null ? "" : inputCmd.getType());
+			switch (type) {
 				case EchoCommand.TYPE:
 					outputCmd = new EchoCommand(((EchoCommand)inputCmd).getText());
 					break;
@@ -38,10 +39,15 @@ public class SockerServerHandler implements Runnable {
 					outputCmd = new EchoCommand("notfound");
 					break;
 			}
-			outputCmd.write(outputStream);
-			
+			outputCmd.send(outputStream);
 		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			try {
+				if(!socket.isClosed()){ socket.close(); }
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 }
