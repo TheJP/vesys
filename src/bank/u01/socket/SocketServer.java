@@ -99,6 +99,12 @@ public class SocketServer implements Runnable {
 					case "?":
 						System.out.println("Shutdown Server with q or stop");
 						break;
+					case "print":
+						for(String number : b.getAccountNumbers()){
+							System.out.printf("%s ", number);
+						}
+						System.out.println();
+						break;
 				}
 			} while(line != "q" && line != "stop");
 			//Stop the Server

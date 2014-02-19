@@ -7,10 +7,25 @@ import java.net.Socket;
 import java.util.Set;
 
 import bank.Account;
+import bank.AccountBase;
 import bank.Bank;
 import bank.InactiveException;
 import bank.OverdrawException;
-import bank.u01.socket.protocol.*;
+import bank.u01.socket.protocol.AccountCommand;
+import bank.u01.socket.protocol.AccountNumbersCommand;
+import bank.u01.socket.protocol.CloseAccountCommand;
+import bank.u01.socket.protocol.ClosedAccountCommand;
+import bank.u01.socket.protocol.CreateAccountCommand;
+import bank.u01.socket.protocol.CreatedAccountCommand;
+import bank.u01.socket.protocol.DepositCommand;
+import bank.u01.socket.protocol.ExceptionCommand;
+import bank.u01.socket.protocol.ExceptionCommand.ExceptionId;
+import bank.u01.socket.protocol.GetAccountCommand;
+import bank.u01.socket.protocol.GetAccountNumbersCommand;
+import bank.u01.socket.protocol.SocketCommand;
+import bank.u01.socket.protocol.SocketUtil;
+import bank.u01.socket.protocol.TransferCommand;
+import bank.u01.socket.protocol.WithdrawCommand;
 
 public class SocketBank implements Bank {
 
@@ -18,6 +33,7 @@ public class SocketBank implements Bank {
 	private int port;
 
 	public SocketBank(String address, int port) {
+		SocketUtil.registerCommands(this);
 		this.address = address;
 		this.port = port;
 	}
@@ -58,29 +74,118 @@ public class SocketBank implements Bank {
 
 	@Override
 	public boolean closeAccount(String number) throws IOException {
-		CloseAccount outputCmd = new CloseAccount(number);
-		ClosedAccount inputCmd = sendCommand(outputCmd);
+		CloseAccountCommand outputCmd = new CloseAccountCommand(number);
+		ClosedAccountCommand inputCmd = sendCommand(outputCmd);
 		return inputCmd.getValue();
 	}
 
 	@Override
 	public Set<String> getAccountNumbers() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		GetAccountNumbersCommand outputCmd = new GetAccountNumbersCommand();
+		AccountNumbersCommand inputCmd = sendCommand(outputCmd);
+		return inputCmd.getValue();
 	}
 
 	@Override
 	public Account getAccount(String number) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		GetAccountCommand outputCmd = new GetAccountCommand(number);
+		AccountCommand inputCmd = sendCommand(outputCmd);
+		return inputCmd.getValue();
 	}
 
 	@Override
-	public void transfer(Account a, Account b, double amount)
+	public void transfer(Account from, Account to, double amount)
 			throws IOException, IllegalArgumentException, OverdrawException,
 			InactiveException {
-		// TODO Auto-generated method stub
-		
+		TransferCommand outputCmd = new TransferCommand((AccountBase)from, (AccountBase)to, amount);
+		ExceptionCommand inputCmd = sendCommand(outputCmd);
+		if(inputCmd.getValue().equals(ExceptionId.IllegalArgumentException.name())){
+			throw new IllegalArgumentException();
+		} else if(inputCmd.getValue().equals(ExceptionId.OverdrawException.name())){
+			throw new OverdrawException();
+		} else if(inputCmd.getValue().equals(ExceptionId.InactiveException.name())){
+			throw new InactiveException();
+		}
+		((AccountBase)from).setBalance(
+				getAccount(from.getNumber()).getBalance()
+		);
+		((AccountBase)to).setBalance(
+				getAccount(to.getNumber()).getBalance()
+		);
 	}
+	
+	public class SocketAccount extends AccountBase{
 
+		private String number;
+		private String owner;
+		private double balance = 0.0;
+		private boolean active = true;
+
+		@Override
+		public String getNumber() throws IOException {
+			return number;
+		}
+
+		@Override
+		public String getOwner() throws IOException {
+			return owner;
+		}
+
+		@Override
+		public boolean isActive() throws IOException {
+			return active;
+		}
+
+
+		@Override
+		public double getBalance() throws IOException {
+			return balance;
+		}
+
+		@Override
+		public void setNumber(String number) {
+			this.number = number;
+		}
+
+		@Override
+		public void setOwner(String owner) {
+			this.owner = owner;
+		}
+
+		@Override
+		public void setBalance(double balance) {
+			this.balance = balance;
+		}
+
+		@Override
+		public void setActive(boolean active) {
+			this.active = active;
+		}
+
+		@Override
+		public void deposit(double amount) throws IOException,
+				IllegalArgumentException, InactiveException {
+			DepositCommand outputCmd = new DepositCommand(this, amount);
+			ExceptionCommand inputCmd = sendCommand(outputCmd);
+			if(inputCmd.getValue().equals(ExceptionId.IllegalArgumentException.name())){
+				throw new IllegalArgumentException();
+			} else if(inputCmd.getValue().equals(ExceptionId.InactiveException.name())){
+				throw new InactiveException();
+			}
+			setBalance(getAccount(this.getNumber()).getBalance());
+		}
+
+		@Override
+		public void withdraw(double amount) throws IOException,
+				IllegalArgumentException, OverdrawException, InactiveException {
+			WithdrawCommand outputCmd = new WithdrawCommand(this, amount);
+			ExceptionCommand inputCmd = sendCommand(outputCmd);
+			if(inputCmd.getValue().equals(ExceptionId.IllegalArgumentException.name())){
+				throw new IllegalArgumentException();
+			} else if(inputCmd.getValue().equals(ExceptionId.InactiveException.name())){
+				throw new InactiveException();
+			}
+			setBalance(getAccount(this.getNumber()).getBalance());
+		}
+	}
 }

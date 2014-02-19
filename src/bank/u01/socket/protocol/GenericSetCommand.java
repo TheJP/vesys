@@ -26,6 +26,7 @@ public abstract class GenericSetCommand<T> extends GenericCommand<Set<T>> {
 		for(int i = 0; i < size; i++){
 			value.add(readValue(stream));
 		}
+		setValue(value);
 	}
 
 	/**

@@ -2,16 +2,29 @@ package bank.u01.socket;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.IOException;
 import java.net.Socket;
+import java.util.Set;
 
+import bank.Account;
+import bank.AccountBase;
 import bank.Bank;
-import bank.u01.socket.protocol.CloseAccount;
-import bank.u01.socket.protocol.ClosedAccount;
+import bank.InactiveException;
+import bank.OverdrawException;
+import bank.u01.socket.protocol.AccountCommand;
+import bank.u01.socket.protocol.AccountNumbersCommand;
+import bank.u01.socket.protocol.CloseAccountCommand;
+import bank.u01.socket.protocol.ClosedAccountCommand;
 import bank.u01.socket.protocol.CreateAccountCommand;
 import bank.u01.socket.protocol.CreatedAccountCommand;
+import bank.u01.socket.protocol.DepositCommand;
 import bank.u01.socket.protocol.EchoCommand;
+import bank.u01.socket.protocol.ExceptionCommand;
+import bank.u01.socket.protocol.ExceptionCommand.ExceptionId;
+import bank.u01.socket.protocol.GetAccountCommand;
+import bank.u01.socket.protocol.GetAccountNumbersCommand;
 import bank.u01.socket.protocol.SocketCommand;
+import bank.u01.socket.protocol.TransferCommand;
+import bank.u01.socket.protocol.WithdrawCommand;
 
 /**
  * Handles a single client and stops afterwards
@@ -35,6 +48,7 @@ public class SockerServerHandler implements Runnable {
 			SocketCommand inputCmd = SocketCommand.createCommand(inputStream);
 			SocketCommand outputCmd;
 			String type = (inputCmd == null ? "" : inputCmd.getType());
+			System.out.println(type);
 			switch (type) {
 				case EchoCommand.TYPE:
 					outputCmd = new EchoCommand(((EchoCommand)inputCmd).getText());
@@ -42,9 +56,58 @@ public class SockerServerHandler implements Runnable {
 				case CreateAccountCommand.TYPE:
 					String accountNr = localBank.createAccount(((CreateAccountCommand)inputCmd).getValue());
 					outputCmd = new CreatedAccountCommand(accountNr);
-				case CloseAccount.TYPE:
-					boolean success = localBank.closeAccount(((CloseAccount)inputCmd).getValue());
-					outputCmd = new ClosedAccount(success);
+					break;
+				case CloseAccountCommand.TYPE:
+					boolean success = localBank.closeAccount(((CloseAccountCommand)inputCmd).getValue());
+					outputCmd = new ClosedAccountCommand(success);
+					break;
+				case GetAccountNumbersCommand.TYPE:
+					Set<String> accountNumbers = localBank.getAccountNumbers();
+					outputCmd = new AccountNumbersCommand(accountNumbers);
+					break;
+				case GetAccountCommand.TYPE:
+					AccountBase account = (AccountBase)localBank.getAccount(((GetAccountCommand)inputCmd).getValue());
+					outputCmd = new AccountCommand(account);
+					break;
+				case TransferCommand.TYPE:
+					TransferCommand tCmd = (TransferCommand)inputCmd;
+					try {
+						localBank.transfer(tCmd.getFrom(), tCmd.getTo(), tCmd.getValue());
+						outputCmd = new ExceptionCommand();
+					} catch(InactiveException ie){
+						outputCmd = new ExceptionCommand(ExceptionId.InactiveException);
+					} catch(IllegalArgumentException iae){
+						outputCmd = new ExceptionCommand(ExceptionId.IllegalArgumentException);
+					} catch(OverdrawException oe){
+						outputCmd = new ExceptionCommand(ExceptionId.OverdrawException);
+					}
+					break;
+				case DepositCommand.TYPE:
+					DepositCommand dCmd = (DepositCommand)inputCmd;
+					try{
+						Account localAccount = localBank.getAccount(dCmd.getAccount().getNumber());
+						localAccount.deposit(dCmd.getValue());
+						outputCmd = new ExceptionCommand();
+					} catch(InactiveException ie){
+						outputCmd = new ExceptionCommand(ExceptionId.InactiveException);
+					} catch(IllegalArgumentException iae){
+						outputCmd = new ExceptionCommand(ExceptionId.IllegalArgumentException);
+					}
+					break;
+				case WithdrawCommand.TYPE:
+					WithdrawCommand wCmd = (WithdrawCommand)inputCmd;
+					try{
+						Account localAccount = localBank.getAccount(wCmd.getAccount().getNumber());
+						localAccount.withdraw(wCmd.getValue());
+						outputCmd = new ExceptionCommand();
+					} catch(InactiveException ie){
+						outputCmd = new ExceptionCommand(ExceptionId.InactiveException);
+					} catch(IllegalArgumentException iae){
+						outputCmd = new ExceptionCommand(ExceptionId.IllegalArgumentException);
+					} catch(OverdrawException oe){
+						outputCmd = new ExceptionCommand(ExceptionId.OverdrawException);
+					}
+					break;
 				default:
 					outputCmd = new EchoCommand("notfound");
 					break;

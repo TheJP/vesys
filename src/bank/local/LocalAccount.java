@@ -1,9 +1,10 @@
 package bank.local;
 
+import bank.AccountBase;
 import bank.InactiveException;
 import bank.OverdrawException;
 
-public class LocalAccount implements bank.Account {
+public class LocalAccount extends AccountBase {
 	private String number;
 	private String owner;
 	private double balance = 0.0;
@@ -16,6 +17,11 @@ public class LocalAccount implements bank.Account {
 	LocalAccount(String owner) {
 		this.owner = owner;
 		this.number = Integer.toString(LocalAccount.nextNumber++);
+	}
+
+	public LocalAccount() {
+		this.owner = "";
+		this.number = "";
 	}
 
 	@Override
@@ -37,7 +43,23 @@ public class LocalAccount implements bank.Account {
 	public boolean isActive() {
 		return active;
 	}
-	
+
+	public void setNumber(String number) {
+		this.number = number;
+	}
+
+	public void setOwner(String owner) {
+		this.owner = owner;
+	}
+
+	public void setBalance(double balance) {
+		this.balance = balance;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
+	}
+
 	/**
 	 * Closes the LocalAccount
 	 * Sets active to false
