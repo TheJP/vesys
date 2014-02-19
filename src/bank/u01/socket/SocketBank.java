@@ -4,15 +4,13 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.Set;
 
 import bank.Account;
 import bank.Bank;
 import bank.InactiveException;
 import bank.OverdrawException;
-import bank.u01.socket.protocol.CreateAccountCommand;
-import bank.u01.socket.protocol.SocketCommand;
+import bank.u01.socket.protocol.*;
 
 public class SocketBank implements Bank {
 
@@ -30,7 +28,8 @@ public class SocketBank implements Bank {
 	 * @return
 	 * @throws Exception
 	 */
-	protected SocketCommand sendCommand(SocketCommand outputCmd) throws IOException{
+	@SuppressWarnings("unchecked")
+	protected <T extends SocketCommand> T sendCommand(SocketCommand outputCmd) throws IOException{
 		SocketCommand inputCmd = null;
 		Socket clientSocket = null;
 		try {
@@ -46,20 +45,22 @@ public class SocketBank implements Bank {
 			if(clientSocket != null){ clientSocket.close(); }
 		}
 		if(inputCmd == null){ throw new IOException("Unkown result"); }
-		return inputCmd;
+		try { return (T) inputCmd; }
+		catch(Exception e){ throw new IOException("Unkown result"); }
 	}
 
 	@Override
 	public String createAccount(String owner) throws IOException {
 		CreateAccountCommand outputCmd = new CreateAccountCommand(owner);
-		SocketCommand inputCmd = sendCommand(outputCmd);
-		return inputCmd.getType();
+		CreatedAccountCommand inputCmd = sendCommand(outputCmd);
+		return inputCmd.getValue();
 	}
 
 	@Override
 	public boolean closeAccount(String number) throws IOException {
-		// TODO Auto-generated method stub
-		return false;
+		CloseAccount outputCmd = new CloseAccount(number);
+		ClosedAccount inputCmd = sendCommand(outputCmd);
+		return inputCmd.getValue();
 	}
 
 	@Override
