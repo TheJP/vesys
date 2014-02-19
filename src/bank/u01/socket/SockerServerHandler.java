@@ -4,6 +4,11 @@ import java.net.Socket;
 
 import bank.Bank;
 
+/**
+ * Handles a single client and stops afterwards
+ * @author JP
+ *
+ */
 public class SockerServerHandler implements Runnable {
 
 	private Socket socket;
