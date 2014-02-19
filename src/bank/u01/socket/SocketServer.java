@@ -95,6 +95,7 @@ public class SocketServer implements Runnable {
 	}
 
 	public static void main(String[] args) {
+		registerCommands();
 		Scanner scanner = new Scanner(System.in);
 		//Start the Server
 		Bank b = new LocalBank();

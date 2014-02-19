@@ -31,13 +31,13 @@ public abstract class SocketCommand {
 	 * @param stream
 	 * @return
 	 */
-	public abstract String write(DataOutput stream);
+	public abstract void write(DataOutput stream) throws IOException;
 	/**
 	 * Read the command parameters from the stream
 	 * @param stream
 	 * @return
 	 */
-	public abstract String read(DataInput stream);
+	public abstract void read(DataInput stream) throws IOException ;
 
 	private static Map<String, SocketCommandFactory> avaibleCommands = new HashMap<>();
 	public static void addCommandFactory(SocketCommandFactory sc){
