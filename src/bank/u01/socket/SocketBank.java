@@ -18,8 +18,8 @@ import bank.u01.socket.protocol.ClosedAccountCommand;
 import bank.u01.socket.protocol.CreateAccountCommand;
 import bank.u01.socket.protocol.CreatedAccountCommand;
 import bank.u01.socket.protocol.DepositCommand;
-import bank.u01.socket.protocol.ExceptionCommand;
-import bank.u01.socket.protocol.ExceptionCommand.ExceptionId;
+import bank.u01.socket.protocol.StatusCommand;
+import bank.u01.socket.protocol.StatusCommand.StatusId;
 import bank.u01.socket.protocol.GetAccountCommand;
 import bank.u01.socket.protocol.GetAccountNumbersCommand;
 import bank.u01.socket.protocol.SocketCommand;
@@ -61,7 +61,8 @@ public class SocketBank implements Bank {
 			if(clientSocket != null){ clientSocket.close(); }
 		}
 		if(inputCmd == null){ throw new IOException("Unkown result"); }
-		try { return (T) inputCmd; }
+		try {
+			return (T) inputCmd; }
 		catch(Exception e){ throw new IOException("Unkown result"); }
 	}
 
@@ -98,12 +99,12 @@ public class SocketBank implements Bank {
 			throws IOException, IllegalArgumentException, OverdrawException,
 			InactiveException {
 		TransferCommand outputCmd = new TransferCommand((AccountBase)from, (AccountBase)to, amount);
-		ExceptionCommand inputCmd = sendCommand(outputCmd);
-		if(inputCmd.getValue().equals(ExceptionId.IllegalArgumentException.name())){
+		StatusCommand inputCmd = sendCommand(outputCmd);
+		if(inputCmd.getValue().equals(StatusId.IllegalArgumentException.name())){
 			throw new IllegalArgumentException();
-		} else if(inputCmd.getValue().equals(ExceptionId.OverdrawException.name())){
+		} else if(inputCmd.getValue().equals(StatusId.OverdrawException.name())){
 			throw new OverdrawException();
-		} else if(inputCmd.getValue().equals(ExceptionId.InactiveException.name())){
+		} else if(inputCmd.getValue().equals(StatusId.InactiveException.name())){
 			throw new InactiveException();
 		}
 		((AccountBase)from).setBalance(
@@ -166,10 +167,10 @@ public class SocketBank implements Bank {
 		public void deposit(double amount) throws IOException,
 				IllegalArgumentException, InactiveException {
 			DepositCommand outputCmd = new DepositCommand(this, amount);
-			ExceptionCommand inputCmd = sendCommand(outputCmd);
-			if(inputCmd.getValue().equals(ExceptionId.IllegalArgumentException.name())){
+			StatusCommand inputCmd = sendCommand(outputCmd);
+			if(inputCmd.getValue().equals(StatusId.IllegalArgumentException.name())){
 				throw new IllegalArgumentException();
-			} else if(inputCmd.getValue().equals(ExceptionId.InactiveException.name())){
+			} else if(inputCmd.getValue().equals(StatusId.InactiveException.name())){
 				throw new InactiveException();
 			}
 			setBalance(getAccount(this.getNumber()).getBalance());
@@ -179,10 +180,10 @@ public class SocketBank implements Bank {
 		public void withdraw(double amount) throws IOException,
 				IllegalArgumentException, OverdrawException, InactiveException {
 			WithdrawCommand outputCmd = new WithdrawCommand(this, amount);
-			ExceptionCommand inputCmd = sendCommand(outputCmd);
-			if(inputCmd.getValue().equals(ExceptionId.IllegalArgumentException.name())){
+			StatusCommand inputCmd = sendCommand(outputCmd);
+			if(inputCmd.getValue().equals(StatusId.IllegalArgumentException.name())){
 				throw new IllegalArgumentException();
-			} else if(inputCmd.getValue().equals(ExceptionId.InactiveException.name())){
+			} else if(inputCmd.getValue().equals(StatusId.InactiveException.name())){
 				throw new InactiveException();
 			}
 			setBalance(getAccount(this.getNumber()).getBalance());

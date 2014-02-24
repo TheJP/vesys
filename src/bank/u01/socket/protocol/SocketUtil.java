@@ -64,8 +64,8 @@ public final class SocketUtil {
 			}
 		});
 		SocketCommand.addCommandFactory(new SocketCommandFactory() {
-			@Override public String getType() { return ExceptionCommand.TYPE; }
-			@Override public SocketCommand createCommand() { return new ExceptionCommand(); }
+			@Override public String getType() { return StatusCommand.TYPE; }
+			@Override public SocketCommand createCommand() { return new StatusCommand(); }
 		});
 		SocketCommand.addCommandFactory(new SocketCommandFactory() {
 			@Override public String getType() { return GetAccountCommand.TYPE; }

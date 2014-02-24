@@ -90,6 +90,7 @@ public class SocketServer implements Runnable {
 		SocketServer server = new SocketServer(b);
 		try {
 			server.start();
+			System.out.println("Server started");
 			//Accept user interaction with Server
 			String line = "";
 			do {
@@ -106,9 +107,10 @@ public class SocketServer implements Runnable {
 						System.out.println();
 						break;
 				}
-			} while(line != "q" && line != "stop");
+			} while(!line.equals("q") && !line.equals("stop"));
 			//Stop the Server
 			server.stop();
+			System.exit(0);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally{

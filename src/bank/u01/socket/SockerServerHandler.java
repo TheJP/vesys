@@ -18,8 +18,8 @@ import bank.u01.socket.protocol.CreateAccountCommand;
 import bank.u01.socket.protocol.CreatedAccountCommand;
 import bank.u01.socket.protocol.DepositCommand;
 import bank.u01.socket.protocol.EchoCommand;
-import bank.u01.socket.protocol.ExceptionCommand;
-import bank.u01.socket.protocol.ExceptionCommand.ExceptionId;
+import bank.u01.socket.protocol.StatusCommand;
+import bank.u01.socket.protocol.StatusCommand.StatusId;
 import bank.u01.socket.protocol.GetAccountCommand;
 import bank.u01.socket.protocol.GetAccountNumbersCommand;
 import bank.u01.socket.protocol.SocketCommand;
@@ -67,19 +67,25 @@ public class SockerServerHandler implements Runnable {
 					break;
 				case GetAccountCommand.TYPE:
 					AccountBase account = (AccountBase)localBank.getAccount(((GetAccountCommand)inputCmd).getValue());
-					outputCmd = new AccountCommand(account);
+					if(account != null){
+						outputCmd = new AccountCommand(account);
+					}else{
+						outputCmd = new StatusCommand(StatusId.IllegalArgumentException);	
+					}
 					break;
 				case TransferCommand.TYPE:
 					TransferCommand tCmd = (TransferCommand)inputCmd;
 					try {
-						localBank.transfer(tCmd.getFrom(), tCmd.getTo(), tCmd.getValue());
-						outputCmd = new ExceptionCommand();
+						Account to = localBank.getAccount(tCmd.getTo().getNumber());
+						Account from = localBank.getAccount(tCmd.getFrom().getNumber());
+						localBank.transfer(from, to, tCmd.getValue());
+						outputCmd = new StatusCommand();
 					} catch(InactiveException ie){
-						outputCmd = new ExceptionCommand(ExceptionId.InactiveException);
+						outputCmd = new StatusCommand(StatusId.InactiveException);
 					} catch(IllegalArgumentException iae){
-						outputCmd = new ExceptionCommand(ExceptionId.IllegalArgumentException);
+						outputCmd = new StatusCommand(StatusId.IllegalArgumentException);
 					} catch(OverdrawException oe){
-						outputCmd = new ExceptionCommand(ExceptionId.OverdrawException);
+						outputCmd = new StatusCommand(StatusId.OverdrawException);
 					}
 					break;
 				case DepositCommand.TYPE:
@@ -87,11 +93,11 @@ public class SockerServerHandler implements Runnable {
 					try{
 						Account localAccount = localBank.getAccount(dCmd.getAccount().getNumber());
 						localAccount.deposit(dCmd.getValue());
-						outputCmd = new ExceptionCommand();
+						outputCmd = new StatusCommand();
 					} catch(InactiveException ie){
-						outputCmd = new ExceptionCommand(ExceptionId.InactiveException);
+						outputCmd = new StatusCommand(StatusId.InactiveException);
 					} catch(IllegalArgumentException iae){
-						outputCmd = new ExceptionCommand(ExceptionId.IllegalArgumentException);
+						outputCmd = new StatusCommand(StatusId.IllegalArgumentException);
 					}
 					break;
 				case WithdrawCommand.TYPE:
@@ -99,17 +105,17 @@ public class SockerServerHandler implements Runnable {
 					try{
 						Account localAccount = localBank.getAccount(wCmd.getAccount().getNumber());
 						localAccount.withdraw(wCmd.getValue());
-						outputCmd = new ExceptionCommand();
+						outputCmd = new StatusCommand();
 					} catch(InactiveException ie){
-						outputCmd = new ExceptionCommand(ExceptionId.InactiveException);
+						outputCmd = new StatusCommand(StatusId.InactiveException);
 					} catch(IllegalArgumentException iae){
-						outputCmd = new ExceptionCommand(ExceptionId.IllegalArgumentException);
+						outputCmd = new StatusCommand(StatusId.IllegalArgumentException);
 					} catch(OverdrawException oe){
-						outputCmd = new ExceptionCommand(ExceptionId.OverdrawException);
+						outputCmd = new StatusCommand(StatusId.OverdrawException);
 					}
 					break;
 				default:
-					outputCmd = new EchoCommand("notfound");
+					outputCmd = new StatusCommand(StatusId.IllegalArgumentException);
 					break;
 			}
 			outputCmd.send(outputStream);
