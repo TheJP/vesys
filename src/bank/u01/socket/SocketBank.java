@@ -4,6 +4,8 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import bank.Account;
@@ -11,6 +13,7 @@ import bank.AccountBase;
 import bank.Bank;
 import bank.InactiveException;
 import bank.OverdrawException;
+import bank.local.LocalAccount;
 import bank.u01.socket.protocol.AccountCommand;
 import bank.u01.socket.protocol.AccountNumbersCommand;
 import bank.u01.socket.protocol.CloseAccountCommand;
@@ -31,6 +34,7 @@ public class SocketBank implements Bank {
 
 	private String address;
 	private int port;
+	private final Map<String, AccountBase> accounts = new HashMap<>();
 
 	public SocketBank(String address, int port) {
 		SocketUtil.registerCommands(this);
@@ -61,8 +65,7 @@ public class SocketBank implements Bank {
 			if(clientSocket != null){ clientSocket.close(); }
 		}
 		if(inputCmd == null){ throw new IOException("Unkown result"); }
-		try {
-			return (T) inputCmd; }
+		try { return (T) inputCmd; }
 		catch(Exception e){ throw new IOException("Unkown result"); }
 	}
 
@@ -91,7 +94,15 @@ public class SocketBank implements Bank {
 	public Account getAccount(String number) throws IOException {
 		GetAccountCommand outputCmd = new GetAccountCommand(number);
 		AccountCommand inputCmd = sendCommand(outputCmd);
-		return inputCmd.getValue();
+		if(accounts.containsKey(number)){
+			AccountBase origin = accounts.get(number);
+			origin.setActive(inputCmd.getValue().isActive());
+			origin.setBalance(inputCmd.getValue().getBalance());
+			origin.setOwner(inputCmd.getValue().getOwner());
+		}else{
+			accounts.put(number, inputCmd.getValue());
+		}
+		return accounts.get(number);
 	}
 
 	@Override

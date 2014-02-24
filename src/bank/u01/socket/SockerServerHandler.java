@@ -67,11 +67,7 @@ public class SockerServerHandler implements Runnable {
 					break;
 				case GetAccountCommand.TYPE:
 					AccountBase account = (AccountBase)localBank.getAccount(((GetAccountCommand)inputCmd).getValue());
-					if(account != null){
-						outputCmd = new AccountCommand(account);
-					}else{
-						outputCmd = new StatusCommand(StatusId.IllegalArgumentException);	
-					}
+					outputCmd = new AccountCommand(account);
 					break;
 				case TransferCommand.TYPE:
 					TransferCommand tCmd = (TransferCommand)inputCmd;
