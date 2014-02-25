@@ -4,39 +4,36 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-import bank.AccountBase;
-import bank.local.LocalAccount;
-
 /**
  * @author Janis
  *
  */
 public class DepositCommand extends GenericCommand<Double> {
-	private AccountBase account;
+	private String accountNr;
 	public static final String TYPE = "deposit";
 	@Override public String getType() { return TYPE; }
 	public DepositCommand() {
 		super(0.0);
-		this.account = new LocalAccount();
+		this.accountNr = "";
 	}
-	public DepositCommand(AccountBase account, Double value) {
+	public DepositCommand(String accountNr, Double value) {
 		super(value);
-		this.account = account;
+		this.accountNr = accountNr;
 	}
-	public AccountBase getAccount() {
-		return account;
+	public String getAccountNr() {
+		return accountNr;
 	}
-	public void setAccount(AccountBase account) {
-		this.account = account;
+	public void setAccountNr(String account) {
+		this.accountNr = account;
 	}
 	@Override
 	protected void write(DataOutput stream) throws IOException {
-		account.write(stream);
+		stream.writeUTF(accountNr);
 		stream.writeDouble(getValue());
 	}
 	@Override
 	public void read(DataInput stream) throws IOException {
-		account.read(stream);
+		accountNr = stream.readUTF();
 		setValue(stream.readDouble());
 	}
 }

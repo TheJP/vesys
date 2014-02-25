@@ -87,7 +87,7 @@ public class SockerServerHandler implements Runnable {
 				case DepositCommand.TYPE:
 					DepositCommand dCmd = (DepositCommand)inputCmd;
 					try{
-						Account localAccount = localBank.getAccount(dCmd.getAccount().getNumber());
+						Account localAccount = localBank.getAccount(dCmd.getAccountNr());
 						localAccount.deposit(dCmd.getValue());
 						outputCmd = new StatusCommand();
 					} catch(InactiveException ie){
