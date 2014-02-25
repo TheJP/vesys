@@ -71,13 +71,7 @@ public final class SocketUtil {
 		});
 		SocketCommand.addCommandFactory(new SocketCommandFactory() {
 			@Override public String getType() { return TransferCommand.TYPE; }
-			@Override public SocketCommand createCommand() {
-				if(localBank == null){
-					return new TransferCommand();
-				}else{
-					return new TransferCommand(localBank.new SocketAccount(), localBank.new SocketAccount(), 0.0);
-				}
-			}
+			@Override public SocketCommand createCommand() { return new TransferCommand(); }
 		});
 		SocketCommand.addCommandFactory(new SocketCommandFactory() {
 			@Override public String getType() { return WithdrawCommand.TYPE; }

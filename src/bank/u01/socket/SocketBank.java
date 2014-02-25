@@ -121,8 +121,7 @@ public class SocketBank implements Bank {
 	public void transfer(Account from, Account to, double amount)
 			throws IOException, IllegalArgumentException, OverdrawException,
 			InactiveException {
-		TransferCommand outputCmd = new TransferCommand((AccountBase) from,
-				(AccountBase) to, amount);
+		TransferCommand outputCmd = new TransferCommand(from.getNumber(), to.getNumber(), amount);
 		StatusCommand inputCmd = sendCommand(outputCmd);
 		if (inputCmd.getValue()
 				.equals(StatusId.IllegalArgumentException.name())) {
@@ -134,6 +133,7 @@ public class SocketBank implements Bank {
 				.equals(StatusId.InactiveException.name())) {
 			throw new InactiveException();
 		}
+		//TODO
 		((AccountBase) from).setBalance(
 				getAccount(from.getNumber()).getBalance());
 		((AccountBase) to).setBalance(

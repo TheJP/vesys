@@ -4,44 +4,41 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-import bank.AccountBase;
-import bank.local.LocalAccount;
-
 public class TransferCommand extends GenericCommand<Double>{
-	private AccountBase from, to;
+	private String from, to;
 	public static final String TYPE = "transfer";
 	@Override public String getType() { return TYPE; }
 
 	public TransferCommand() {
 		super(0.0);
-		this.from = new LocalAccount();
-		this.to = new LocalAccount();
+		this.from = "";
+		this.to = "";
 	}
-	public TransferCommand(AccountBase from, AccountBase to, double value) {
+	public TransferCommand(String from, String to, double value) {
 		super(value);
 		this.from = from;
 		this.to = to;
 	}
 	@Override protected void write(DataOutput stream) throws IOException {
-		from.write(stream);
-		to.write(stream);
+		stream.writeUTF(from);
+		stream.writeUTF(to);
 		stream.writeDouble(getValue());
 	}
 	@Override public void read(DataInput stream) throws IOException {
-		from.read(stream);
-		to.read(stream);
+		from = stream.readUTF();
+		to = stream.readUTF();
 		setValue(stream.readDouble());
 	}
-	public AccountBase getFrom() {
+	public String getFrom() {
 		return from;
 	}
-	public void setFrom(AccountBase from) {
+	public void setFrom(String from) {
 		this.from = from;
 	}
-	public AccountBase getTo() {
+	public String getTo() {
 		return to;
 	}
-	public void setTo(AccountBase to) {
+	public void setTo(String to) {
 		this.to = to;
 	}
 }

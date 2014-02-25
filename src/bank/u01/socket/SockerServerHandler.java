@@ -72,8 +72,8 @@ public class SockerServerHandler implements Runnable {
 				case TransferCommand.TYPE:
 					TransferCommand tCmd = (TransferCommand)inputCmd;
 					try {
-						Account to = localBank.getAccount(tCmd.getTo().getNumber());
-						Account from = localBank.getAccount(tCmd.getFrom().getNumber());
+						Account to = localBank.getAccount(tCmd.getTo());
+						Account from = localBank.getAccount(tCmd.getFrom());
 						localBank.transfer(from, to, tCmd.getValue());
 						outputCmd = new StatusCommand();
 					} catch(InactiveException ie){
