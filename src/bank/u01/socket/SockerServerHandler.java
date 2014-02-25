@@ -99,7 +99,7 @@ public class SockerServerHandler implements Runnable {
 				case WithdrawCommand.TYPE:
 					WithdrawCommand wCmd = (WithdrawCommand)inputCmd;
 					try{
-						Account localAccount = localBank.getAccount(wCmd.getAccount().getNumber());
+						Account localAccount = localBank.getAccount(wCmd.getAccountNr());
 						localAccount.withdraw(wCmd.getValue());
 						outputCmd = new StatusCommand();
 					} catch(InactiveException ie){

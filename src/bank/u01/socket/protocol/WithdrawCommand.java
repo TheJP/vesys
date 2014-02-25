@@ -4,35 +4,32 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-import bank.AccountBase;
-import bank.local.LocalAccount;
-
 public class WithdrawCommand extends GenericCommand<Double> {
-	private AccountBase account;
+	private String accountNr;
 	public static final String TYPE = "withdraw";
 	@Override public String getType() { return TYPE; }
 	public WithdrawCommand() {
 		super(0.0);
-		this.account = new LocalAccount();
+		this.accountNr = "";
 	}
-	public WithdrawCommand(AccountBase account, Double value) {
+	public WithdrawCommand(String account, Double value) {
 		super(value);
-		this.account = account;
+		this.accountNr = account;
 	}
-	public AccountBase getAccount() {
-		return account;
+	public String getAccountNr() {
+		return accountNr;
 	}
-	public void setAccount(AccountBase account) {
-		this.account = account;
+	public void setAccountNr(String account) {
+		this.accountNr = account;
 	}
 	@Override
 	protected void write(DataOutput stream) throws IOException {
-		account.write(stream);
+		stream.writeUTF(accountNr);
 		stream.writeDouble(getValue());
 	}
 	@Override
 	public void read(DataInput stream) throws IOException {
-		account.read(stream);
+		accountNr = stream.readUTF();
 		setValue(stream.readDouble());
 	}
 }

@@ -81,13 +81,7 @@ public final class SocketUtil {
 		});
 		SocketCommand.addCommandFactory(new SocketCommandFactory() {
 			@Override public String getType() { return WithdrawCommand.TYPE; }
-			@Override public SocketCommand createCommand() {
-				if(localBank == null){
-					return new WithdrawCommand();
-				}else{
-					return new WithdrawCommand(localBank.new SocketAccount(), 0.0);
-				}
-			}
+			@Override public SocketCommand createCommand() { return new WithdrawCommand(); }
 		});
 	}
 }

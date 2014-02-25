@@ -205,7 +205,7 @@ public class SocketBank implements Bank {
 		@Override
 		public void withdraw(double amount) throws IOException,
 				IllegalArgumentException, OverdrawException, InactiveException {
-			WithdrawCommand outputCmd = new WithdrawCommand(this, amount);
+			WithdrawCommand outputCmd = new WithdrawCommand(getNumber(), amount);
 			StatusCommand inputCmd = sendCommand(outputCmd);
 			if (inputCmd.getValue().equals(
 					StatusId.IllegalArgumentException.name())) {
