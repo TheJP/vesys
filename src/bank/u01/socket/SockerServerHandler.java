@@ -1,5 +1,7 @@
 package bank.u01.socket;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
@@ -43,8 +45,8 @@ public class SockerServerHandler implements Runnable {
 	@Override
 	public void run() {
 		try {
-			DataInputStream inputStream = new DataInputStream(socket.getInputStream());
-			DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
+			DataInputStream inputStream = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
+			DataOutputStream outputStream = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
 			SocketCommand inputCmd = SocketCommand.createCommand(inputStream);
 			SocketCommand outputCmd;
 			String type = (inputCmd == null ? "" : inputCmd.getType());
@@ -115,6 +117,7 @@ public class SockerServerHandler implements Runnable {
 					break;
 			}
 			outputCmd.send(outputStream);
+			outputStream.flush();
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {

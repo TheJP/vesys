@@ -1,5 +1,7 @@
 package bank.u01.socket;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -55,30 +57,21 @@ public class SocketBank implements Bank {
 		Socket clientSocket = null;
 		try {
 			clientSocket = new Socket(address, port);
-			DataOutputStream outputStream = new DataOutputStream(
-					clientSocket.getOutputStream());
-			DataInputStream inputStream = new DataInputStream(
-					clientSocket.getInputStream());
+			DataOutputStream outputStream = new DataOutputStream(new BufferedOutputStream(clientSocket.getOutputStream()));
+			DataInputStream inputStream = new DataInputStream(new BufferedInputStream(clientSocket.getInputStream()));
 			outputCmd.send(outputStream);
+			outputStream.flush();
 			inputCmd = SocketCommand.createCommand(inputStream);
 		} catch (Exception e) {
-			if (e instanceof IOException) {
-				throw e;
-			}
+			if (e instanceof IOException) { throw e; }
 			e.printStackTrace();
 		} finally {
-			if (clientSocket != null) {
-				clientSocket.close();
-			}
+			if (clientSocket != null) { clientSocket.close(); }
 		}
-		if (inputCmd == null) {
-			throw new IOException("Unkown result");
-		}
+		if (inputCmd == null) { throw new IOException("Unkown result"); }
 		try {
 			return (T) inputCmd;
-		} catch (Exception e) {
-			throw new IOException("Unkown result");
-		}
+		} catch (Exception e) { throw new IOException("Unkown result"); }
 	}
 
 	@Override
