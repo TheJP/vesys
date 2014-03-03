@@ -7,6 +7,12 @@ import java.io.IOException;
 import bank.AccountBase;
 import bank.local.LocalAccount;
 
+/**
+ * Command which can transmit a nullable account over a socket connection
+ * Answer to GetAccountCommand
+ * @see GetAccountCommand
+ * @author JP
+ */
 public class AccountCommand extends GenericCommand<AccountBase> {
 	public static final String TYPE = "a";
 	@Override public String getType() { return TYPE; }

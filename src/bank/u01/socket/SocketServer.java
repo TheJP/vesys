@@ -7,7 +7,6 @@ import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import bank.Bank;
 import bank.BankBase;
 import bank.local.LocalBank;
 import bank.u01.socket.protocol.SocketUtil;
