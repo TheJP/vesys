@@ -9,7 +9,7 @@ import java.util.Set;
 
 import bank.Account;
 import bank.AccountBase;
-import bank.Bank;
+import bank.BankBase;
 import bank.InactiveException;
 import bank.OverdrawException;
 import bank.u01.socket.protocol.AccountCommand;
@@ -20,11 +20,11 @@ import bank.u01.socket.protocol.CreateAccountCommand;
 import bank.u01.socket.protocol.CreatedAccountCommand;
 import bank.u01.socket.protocol.DepositCommand;
 import bank.u01.socket.protocol.EchoCommand;
-import bank.u01.socket.protocol.StatusCommand;
-import bank.u01.socket.protocol.StatusCommand.StatusId;
 import bank.u01.socket.protocol.GetAccountCommand;
 import bank.u01.socket.protocol.GetAccountNumbersCommand;
 import bank.u01.socket.protocol.SocketCommand;
+import bank.u01.socket.protocol.StatusCommand;
+import bank.u01.socket.protocol.StatusCommand.StatusId;
 import bank.u01.socket.protocol.TransferCommand;
 import bank.u01.socket.protocol.WithdrawCommand;
 
@@ -35,9 +35,16 @@ import bank.u01.socket.protocol.WithdrawCommand;
  */
 public class SockerServerHandler implements Runnable {
 
+	/**
+	 * Socket connection to the client of this handler
+	 */
 	private Socket socket;
-	private Bank localBank;
-	public SockerServerHandler(Socket socket, Bank localBank){
+	/**
+	 * Local bank implementation which client request are executed on.
+	 * (May also be a remote bank implementation)
+	 */
+	private BankBase localBank;
+	public SockerServerHandler(Socket socket, BankBase localBank){
 		this.socket = socket;
 		this.localBank = localBank;
 	}
@@ -45,14 +52,21 @@ public class SockerServerHandler implements Runnable {
 	@Override
 	public void run() {
 		try {
+			//TODO: 1. Create the interface ToServerCommand with a handle(Bank localBank) method
+			//      2. Implement handle methods for the different commands
+			//      3. Remove the switch statement and call the handle methods
+			//** Main Server Handling Code **//
+			//Use buffered streams for better performance
 			DataInputStream inputStream = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
 			DataOutputStream outputStream = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
 			SocketCommand inputCmd = SocketCommand.createCommand(inputStream);
 			SocketCommand outputCmd;
 			String type = (inputCmd == null ? "" : inputCmd.getType());
-			System.out.println(type);
+			System.out.println(type); //Debug server output (will stay here because this is not productive code)
+			//Switch over the type String (requires java 7) to find correct implementation
+			//(Most of the implementations speak for themselfes and are not commented because of this)
 			switch (type) {
-				case EchoCommand.TYPE:
+				case EchoCommand.TYPE: //Echo is only used by the EchoTestClient client for the proof of concept
 					outputCmd = new EchoCommand(((EchoCommand)inputCmd).getText());
 					break;
 				case CreateAccountCommand.TYPE:
@@ -68,7 +82,7 @@ public class SockerServerHandler implements Runnable {
 					outputCmd = new AccountNumbersCommand(accountNumbers);
 					break;
 				case GetAccountCommand.TYPE:
-					AccountBase account = (AccountBase)localBank.getAccount(((GetAccountCommand)inputCmd).getValue());
+					AccountBase account = localBank.getAccountBase(((GetAccountCommand)inputCmd).getValue());
 					outputCmd = new AccountCommand(account);
 					break;
 				case TransferCommand.TYPE:

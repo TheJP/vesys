@@ -10,6 +10,19 @@ import bank.u01.socket.protocol.EchoCommand;
 import bank.u01.socket.protocol.SocketCommand;
 import bank.u01.socket.protocol.SocketUtil;
 
+/**
+ * Small test class to proof the concept
+ * 1. Read line from stdin
+ * 2. Send line to server
+ * 3. Receive echo
+ * 4. Print line
+ * 5. Continue with step 1
+ * Loop is interupted by entering an empty line
+ * (Not guaranteed to work anymore)
+ * @deprecated
+ * @author JP
+ *
+ */
 public class EchoTestClient {
 
 	public static void main(String[] args) {

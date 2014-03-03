@@ -8,6 +8,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import bank.Bank;
+import bank.BankBase;
 import bank.local.LocalBank;
 import bank.u01.socket.protocol.SocketUtil;
 
@@ -19,7 +20,7 @@ import bank.u01.socket.protocol.SocketUtil;
 public class SocketServer implements Runnable {
 
 	//Bank on which clients can run operations over this server
-	protected Bank localBank;
+	protected BankBase localBank;
 	//Thread executor for client handler
 	private ExecutorService executors;
 	//Server thread, which accepts connections and starts client handlers
@@ -32,7 +33,7 @@ public class SocketServer implements Runnable {
 	//Port on which the Server will be started
 	public final int SERVER_PORT = 55555;
 
-	public SocketServer(Bank localBank){
+	public SocketServer(BankBase localBank){
 		this.localBank = localBank;
 		acceptorThread = new Thread(this);
 		executors = Executors.newFixedThreadPool(20);
@@ -86,7 +87,7 @@ public class SocketServer implements Runnable {
 		SocketUtil.registerCommands();
 		Scanner scanner = new Scanner(System.in);
 		//Start the Server
-		Bank b = new LocalBank();
+		BankBase b = new LocalBank();
 		SocketServer server = new SocketServer(b);
 		try {
 			server.start();

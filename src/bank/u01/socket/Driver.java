@@ -5,6 +5,11 @@ import java.io.IOException;
 import bank.Bank;
 import bank.BankDriver;
 
+/**
+ * Implementation of the driver for the socket client
+ * @author JP
+ *
+ */
 public class Driver implements BankDriver {
 
 	private Bank bank;
@@ -16,7 +21,7 @@ public class Driver implements BankDriver {
 
 	@Override
 	public void disconnect() throws IOException {
-		//bye (stateles protocol)
+		//bye bye (stateless protocol, no disconnect needed)
 	}
 
 	@Override

@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import bank.Bank;
+import bank.BankBase;
 import bank.InactiveException;
 import bank.OverdrawException;
 
@@ -17,7 +17,7 @@ import bank.OverdrawException;
  * @author JP
  *
  */
-public class LocalBank implements Bank {
+public class LocalBank implements BankBase {
 
 	/**
 	 * Map in which all accounts are stored. Hashed by the account.nr
@@ -51,6 +51,11 @@ public class LocalBank implements Bank {
 
 	@Override
 	public bank.Account getAccount(String number) {
+		return accounts.get(number);
+	}
+
+	@Override
+	public bank.AccountBase getAccountBase(String number) {
 		return accounts.get(number);
 	}
 
