@@ -2,7 +2,7 @@ package bank.u01.socket.protocol;
 
 
 /**
- * 
+ * Abstract Command which allows to write single generic value commands
  * @author JP
  */
 public abstract class GenericCommand<T> extends SocketCommand {

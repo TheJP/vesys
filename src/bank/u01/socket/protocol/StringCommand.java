@@ -5,7 +5,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 /**
- * 
+ * Abstract Command which allows to write single string value commands
  * @author JP
  */
 public abstract class StringCommand extends GenericCommand<String> {

@@ -6,6 +6,10 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Abstract Command which allows to write commands which transmit a set of strings
+ * @author JP
+ */
 public abstract class StringSetCommand extends GenericSetCommand<String> {
 
 	public StringSetCommand(){

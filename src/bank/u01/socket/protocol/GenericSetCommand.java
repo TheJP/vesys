@@ -6,6 +6,11 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Abstract Command which allows to write commands which transmit a set of generic values
+ * @author JP
+ * @param <T>
+ */
 public abstract class GenericSetCommand<T> extends GenericCommand<Set<T>> {
 	public GenericSetCommand(Set<T> value){
 		super(value);
