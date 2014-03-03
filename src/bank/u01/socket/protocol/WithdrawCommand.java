@@ -4,6 +4,11 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
+/**
+ * Command to withdraw money from an account
+ * @see StatusCommand
+ * @author JP
+ */
 public class WithdrawCommand extends GenericCommand<Double> {
 	private String accountNr;
 	public static final String TYPE = "withdraw";

@@ -5,8 +5,9 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 /**
- * @author Janis
- *
+ * Command to deposit money to an account
+ * @see StatusCommand
+ * @author JP
  */
 public class DepositCommand extends GenericCommand<Double> {
 	private String accountNr;

@@ -4,6 +4,11 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
+/**
+ * Command to transfer money from one account to the other
+ * @see StatusCommand
+ * @author JP
+ */
 public class TransferCommand extends GenericCommand<Double>{
 	private String from, to;
 	public static final String TYPE = "transfer";

@@ -4,6 +4,11 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
+/**
+ * Test implementation of a command for the proof of concept
+ * @author JP
+ *
+ */
 public class EchoCommand extends SocketCommand {
 
 	public static final String TYPE = "e";

@@ -3,6 +3,11 @@ package bank.u01.socket.protocol;
 import bank.u01.socket.SocketBank;
 import bank.u01.socket.protocol.SocketCommand.SocketCommandFactory;
 
+/**
+ * Contains a method to create all needed socket factories
+ * @author JP
+ *
+ */
 public final class SocketUtil {
 
 	private SocketUtil(){} //No instance possible

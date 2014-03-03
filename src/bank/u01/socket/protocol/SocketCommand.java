@@ -8,11 +8,16 @@ import java.util.Map;
 
 /**
  * Command which can be sent trough the connection
- * @author Janis
+ * @author JP
  *
  */
 public abstract class SocketCommand {
 
+	/**
+	 * Factory to create an instance of the specific command type
+	 * (Needed when only reading the type from a socket stream)
+	 * @author JP
+	 */
 	public static abstract class SocketCommandFactory {
 		/**
 		 * Gets the Type of the command (transmitted over stream)

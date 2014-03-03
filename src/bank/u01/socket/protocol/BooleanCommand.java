@@ -4,6 +4,10 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
+/**
+ * Abstract Command which allows to write single boolean value commands
+ * @author JP
+ */
 public abstract class BooleanCommand extends GenericCommand<Boolean> {
 	public BooleanCommand(){
 		super(false);
