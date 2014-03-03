@@ -4,14 +4,19 @@ import bank.AccountBase;
 import bank.InactiveException;
 import bank.OverdrawException;
 
+/**
+ * Local account implemented for the local bank
+ * @see LocalBank
+ * @author JP
+ *
+ */
 public class LocalAccount extends AccountBase {
 	private String number;
 	private String owner;
 	private double balance = 0.0;
 	private boolean active = true;
 	
-	//When we ignore Scalability:
-	//TODO: Generated Number instead of counting up
+	//TODO: Generated Number instead of counting up to improve scalability
 	private static int nextNumber = 1;
 
 	LocalAccount(String owner) {
@@ -44,18 +49,22 @@ public class LocalAccount extends AccountBase {
 		return active;
 	}
 
+	@Override
 	public void setNumber(String number) {
 		this.number = number;
 	}
 
+	@Override
 	public void setOwner(String owner) {
 		this.owner = owner;
 	}
 
+	@Override
 	public void setBalance(double balance) {
 		this.balance = balance;
 	}
 
+	@Override
 	public void setActive(boolean active) {
 		this.active = active;
 	}

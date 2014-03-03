@@ -10,10 +10,18 @@ import bank.Bank;
 import bank.InactiveException;
 import bank.OverdrawException;
 
-
-
+/**
+ * Local bank implementation. An implementation of bank, which allows to create
+ * a working local bank which doesn't require a connection.
+ * This implementation is mostly used by the different bank servers.
+ * @author JP
+ *
+ */
 public class LocalBank implements Bank {
 
+	/**
+	 * Map in which all accounts are stored. Hashed by the account.nr
+	 */
 	private final Map<String, LocalAccount> accounts = new HashMap<>();
 
 	@Override
