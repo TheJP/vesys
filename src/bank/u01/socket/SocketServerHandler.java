@@ -33,7 +33,7 @@ import bank.u01.socket.protocol.WithdrawCommand;
  * @author JP
  *
  */
-public class SockerServerHandler implements Runnable {
+public class SocketServerHandler implements Runnable {
 
 	/**
 	 * Socket connection to the client of this handler
@@ -44,7 +44,7 @@ public class SockerServerHandler implements Runnable {
 	 * (May also be a remote bank implementation)
 	 */
 	private BankBase localBank;
-	public SockerServerHandler(Socket socket, BankBase localBank){
+	public SocketServerHandler(Socket socket, BankBase localBank){
 		this.socket = socket;
 		this.localBank = localBank;
 	}

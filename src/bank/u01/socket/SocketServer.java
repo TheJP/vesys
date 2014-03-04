@@ -63,7 +63,7 @@ public class SocketServer implements Runnable {
 			try {
 				Socket socket = serverSocket.accept();
 				if(running){
-					executors.submit(new SockerServerHandler(socket, localBank));
+					executors.submit(new SocketServerHandler(socket, localBank));
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
