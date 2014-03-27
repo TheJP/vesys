@@ -1,7 +1,7 @@
 package bank.u01.socket.protocol;
 
 /**
- * Command repplied if an account was created
+ * Command replied if an account was created
  * @see CreateAccountCommand
  * @author JP
  */

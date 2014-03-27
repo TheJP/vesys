@@ -4,6 +4,8 @@
 */bin/
 bin/
 lib/
+doc/
+docs/
 */data/
 */tmp/*
 */tmp/**
