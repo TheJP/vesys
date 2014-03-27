@@ -3,6 +3,7 @@
 .gradle
 */bin/
 bin/
+lib/
 */data/
 */tmp/*
 */tmp/**
