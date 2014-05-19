@@ -1,3 +1,4 @@
+//TODO: update in account self!!
 package bank.u05.rmi;
 
 import java.io.IOException;
@@ -5,8 +6,10 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,6 +19,7 @@ import bank.OverdrawException;
 
 public class BankEngine implements RemoteBank {
 
+	protected final List<RemoteUpdate> updaters = new ArrayList<>();
 	/**
 	 * Map in which all accounts are stored. Hashed by the account.nr
 	 */
@@ -35,6 +39,7 @@ public class BankEngine implements RemoteBank {
 		RemoteAccount newAccount = new AccountEngine(owner);
 		/*newAccount = (RemoteAccount)*/ UnicastRemoteObject.exportObject(newAccount, 0);
 		accounts.put(newAccount.getNumber(), newAccount);
+		update(newAccount.getNumber());
 		return newAccount.getNumber();
 	}
 
@@ -45,6 +50,7 @@ public class BankEngine implements RemoteBank {
 			if(a.getBalance() != 0.0){ return false; }
 			if(!a.isActive()){ return false; }
 			a.setActive(false);
+			update(number);
 			return true;
 		}else{
 			return false;
@@ -64,6 +70,8 @@ public class BankEngine implements RemoteBank {
 			//No IOExceptions local!
 			from.withdraw(amount); //Throws if amount < 0; Throws if amount > balance
 			to.deposit(amount);
+			update(from.getNumber());
+			update(to.getNumber());
 		}else{
 			throw new InactiveException();
 		}
@@ -87,6 +95,26 @@ public class BankEngine implements RemoteBank {
 			registry.rebind("Bank", bank);
 		} catch (RemoteException e) {
 			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void registerUpdateHandler(RemoteUpdate ru) throws RemoteException {
+		updaters.add(ru);
+	}
+
+	/**
+	 * Internal Method, which does the update notifications
+	 * @param accountNr
+	 */
+	private void update(String accountNr){
+		for(RemoteUpdate ru : updaters){
+			try {
+				ru.update(accountNr);
+			} catch (RemoteException e) {
+				e.printStackTrace();
+				updaters.remove(ru);
+			}
 		}
 	}
 }

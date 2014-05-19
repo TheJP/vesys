@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.rmi.NotBoundException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 
 import bank.Bank;
 import bank.BankDriver2;
@@ -35,8 +36,9 @@ public class Driver implements BankDriver2 {
 
 	@Override
 	public void registerUpdateHandler(UpdateHandler handler) throws IOException {
-		// TODO Auto-generated method stub
-		
+		UpdateEngine newEngine = new UpdateEngine(handler);
+		UnicastRemoteObject.exportObject(newEngine, 0);
+		bank.registerUpdateHandler(newEngine);
 	}
 
 }
