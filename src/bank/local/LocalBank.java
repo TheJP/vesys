@@ -22,7 +22,7 @@ public class LocalBank implements BankBase {
 	/**
 	 * Map in which all accounts are stored. Hashed by the account.nr
 	 */
-	private final Map<String, LocalAccount> accounts = new HashMap<>();
+	protected final Map<String, LocalAccount> accounts = new HashMap<>();
 
 	@Override
 	public Set<String> getAccountNumbers() {

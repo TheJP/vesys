@@ -5,9 +5,18 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 
+import bank.local.LocalAccount;
 import bank.local.LocalBank;
 
 public class BankEngine extends LocalBank implements RemoteBank {
+
+	@Override
+	public String createAccount(String owner) {
+		LocalAccount newAccount = new AccountEngine(owner);
+		accounts.put(newAccount.getNumber(), newAccount);
+		return newAccount.getNumber();
+	}
+
 	public static void main(String[] args){
 		try {
 			BankEngine engine = new BankEngine();
