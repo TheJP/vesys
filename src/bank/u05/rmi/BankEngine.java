@@ -1,4 +1,3 @@
-//TODO: update in account self!!
 package bank.u05.rmi;
 
 import java.io.IOException;
@@ -78,6 +77,23 @@ public class BankEngine implements RemoteBank, IUpdateable {
 		//End Transaction
 	}
 
+	@Override
+	public void registerUpdateHandler(RemoteUpdate ru) throws RemoteException {
+		updaters.add(ru);
+	}
+
+	@Override
+	public void update(String accountNr){
+		for(RemoteUpdate ru : updaters){
+			try {
+				ru.update(accountNr);
+			} catch (RemoteException e) {
+				e.printStackTrace();
+				updaters.remove(ru);
+			}
+		}
+	}
+
 	public static void main(String[] args){
 		try {
 			BankEngine engine = new BankEngine();
@@ -95,23 +111,6 @@ public class BankEngine implements RemoteBank, IUpdateable {
 			registry.rebind("Bank", bank);
 		} catch (RemoteException e) {
 			e.printStackTrace();
-		}
-	}
-
-	@Override
-	public void registerUpdateHandler(RemoteUpdate ru) throws RemoteException {
-		updaters.add(ru);
-	}
-
-	@Override
-	public void update(String accountNr){
-		for(RemoteUpdate ru : updaters){
-			try {
-				ru.update(accountNr);
-			} catch (RemoteException e) {
-				e.printStackTrace();
-				updaters.remove(ru);
-			}
 		}
 	}
 }
