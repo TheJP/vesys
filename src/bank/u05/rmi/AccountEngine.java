@@ -6,7 +6,6 @@ import bank.local.LocalAccount;
 
 public class AccountEngine extends LocalAccount implements RemoteAccount {
 
-	private static final long serialVersionUID = -395193009633115665L;
 	private IUpdateable updater;
 
 	public AccountEngine(String owner, IUpdateable updater) {

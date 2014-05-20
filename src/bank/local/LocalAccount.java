@@ -1,7 +1,5 @@
 package bank.local;
 
-import java.io.Serializable;
-
 import bank.AccountBase;
 import bank.InactiveException;
 import bank.OverdrawException;
@@ -12,8 +10,7 @@ import bank.OverdrawException;
  * @author JP
  *
  */
-public class LocalAccount extends AccountBase implements Serializable {
-	private static final long serialVersionUID = -4261168763008406729L;
+public class LocalAccount extends AccountBase {
 	private String number;
 	private String owner;
 	private double balance = 0.0;
