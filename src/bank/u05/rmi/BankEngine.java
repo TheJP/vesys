@@ -17,7 +17,7 @@ import bank.Account;
 import bank.InactiveException;
 import bank.OverdrawException;
 
-public class BankEngine implements RemoteBank {
+public class BankEngine implements RemoteBank, IUpdateable {
 
 	protected final List<RemoteUpdate> updaters = new ArrayList<>();
 	/**
@@ -36,7 +36,7 @@ public class BankEngine implements RemoteBank {
 
 	@Override
 	public String createAccount(String owner) throws IOException {
-		RemoteAccount newAccount = new AccountEngine(owner);
+		RemoteAccount newAccount = new AccountEngine(owner, this);
 		/*newAccount = (RemoteAccount)*/ UnicastRemoteObject.exportObject(newAccount, 0);
 		accounts.put(newAccount.getNumber(), newAccount);
 		update(newAccount.getNumber());
@@ -103,11 +103,8 @@ public class BankEngine implements RemoteBank {
 		updaters.add(ru);
 	}
 
-	/**
-	 * Internal Method, which does the update notifications
-	 * @param accountNr
-	 */
-	private void update(String accountNr){
+	@Override
+	public void update(String accountNr){
 		for(RemoteUpdate ru : updaters){
 			try {
 				ru.update(accountNr);
