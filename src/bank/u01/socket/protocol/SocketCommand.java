@@ -1,7 +1,11 @@
 package bank.u01.socket.protocol;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInput;
+import java.io.DataInputStream;
 import java.io.DataOutput;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -78,5 +82,34 @@ public abstract class SocketCommand {
 			cmd.read(stream);
 		}
 		return cmd;
+	}
+
+	/**
+	 * Converts this command to a byte array
+	 * @param command
+	 * @return
+	 * @throws IOException
+	 */
+	public byte[] toBytes(SocketCommand command) throws IOException{
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		try(DataOutputStream dout = new DataOutputStream(out)){
+			send(dout);
+		}
+		return out.toByteArray();
+	}
+
+	/**
+	 * Converts bytes to a command
+	 * @param bytes
+	 * @return
+	 * @throws IOException
+	 */
+	public static SocketCommand fromBytes(byte[] bytes) throws IOException{
+		SocketCommand result = null;
+		ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+		try(DataInputStream din = new DataInputStream(in)){
+			result = createCommand(din);
+		}
+		return result;
 	}
 }
