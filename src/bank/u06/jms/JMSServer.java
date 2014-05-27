@@ -20,8 +20,9 @@ import bank.BankBase;
 import bank.local.LocalBank;
 import bank.u01.socket.protocol.SocketCommand;
 import bank.u01.socket.protocol.SocketUtil;
+import bank.u05.rmi.IUpdateable;
 
-public class JMSServer implements Runnable {
+public class JMSServer implements Runnable, IUpdateable {
 
 	private BankBase localBank;
 	private Thread acceptorThread;
@@ -71,7 +72,7 @@ public class JMSServer implements Runnable {
 			    Message request = consumer.receive();
 				try {
 					SocketCommand inputCmd = SocketCommand.fromBytes(request.getBody(byte[].class));
-					executors.submit(new JMSServerHandler(sender, request.getJMSReplyTo(), inputCmd, localBank));
+					executors.submit(new JMSServerHandler(sender, request.getJMSReplyTo(), this, inputCmd, localBank));
 				} catch (Exception e) { e.printStackTrace(); }
 			}
 		}
@@ -120,6 +121,14 @@ public class JMSServer implements Runnable {
 			}
 		} catch (NamingException e1) {
 			e1.printStackTrace();
+		}
+	}
+
+	@Override
+	public void update(String number) {
+		try (JMSContext context = factory.createContext()) {
+			JMSProducer publisher = context.createProducer();
+			publisher.send(topic, number);
 		}
 	}
 }

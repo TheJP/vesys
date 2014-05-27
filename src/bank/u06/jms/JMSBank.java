@@ -11,7 +11,6 @@ import javax.jms.JMSContext;
 import javax.jms.JMSProducer;
 import javax.jms.Queue;
 import javax.jms.TemporaryQueue;
-import javax.jms.Topic;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -32,16 +31,15 @@ import bank.u01.socket.protocol.GetAccountCommand;
 import bank.u01.socket.protocol.GetAccountNumbersCommand;
 import bank.u01.socket.protocol.SocketCommand;
 import bank.u01.socket.protocol.StatusCommand;
-import bank.u01.socket.protocol.WithdrawCommand;
 import bank.u01.socket.protocol.StatusCommand.StatusId;
 import bank.u01.socket.protocol.TransferCommand;
+import bank.u01.socket.protocol.WithdrawCommand;
 
 public class JMSBank implements Bank {
 
 	private Context jndiContext;
 	private ConnectionFactory factory;
 	private Queue queue;
-	private Topic topic;
 	/**
 	 * Cached accounts. This hastable assures, that there exists only one instance of every account per account.nr and server
 	 */
@@ -51,7 +49,6 @@ public class JMSBank implements Bank {
 		jndiContext = new InitialContext();
 		factory = (ConnectionFactory) jndiContext.lookup("ConnectionFactory");
 		queue = (Queue) jndiContext.lookup("BANK");
-		topic = (Topic) jndiContext.lookup("BANK.LISTENER");
 	}
 
 	@SuppressWarnings("unchecked")
@@ -115,6 +112,11 @@ public class JMSBank implements Bank {
 		} else if (result.getValue().equals(StatusId.InactiveException.name())) {
 			throw new InactiveException();
 		}
+		//Update given accounts from server
+		//This bank is implemented to only distribute one instance per account.nr,
+		//so updating the reference in the hashtable will update all other references
+		getAccount(from.getNumber());
+		getAccount(to.getNumber());
 	}
 
 	public class JMSAccount extends AccountBase {
@@ -175,6 +177,7 @@ public class JMSBank implements Bank {
 					StatusId.InactiveException.name())) {
 				throw new InactiveException();
 			}
+			getAccount(getNumber());
 		}
 
 		@Override
@@ -188,6 +191,7 @@ public class JMSBank implements Bank {
 					StatusId.InactiveException.name())) {
 				throw new InactiveException();
 			}
+			getAccount(getNumber());
 		}
 	}
 
