@@ -8,7 +8,6 @@ import java.util.concurrent.Executors;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSConsumer;
 import javax.jms.JMSContext;
-import javax.jms.JMSException;
 import javax.jms.JMSProducer;
 import javax.jms.Message;
 import javax.jms.Queue;
@@ -17,14 +16,14 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import bank.Bank;
 import bank.BankBase;
 import bank.local.LocalBank;
+import bank.u01.socket.protocol.SocketCommand;
 import bank.u01.socket.protocol.SocketUtil;
 
 public class JMSServer implements Runnable {
 
-	private Bank localBank;
+	private BankBase localBank;
 	private Thread acceptorThread;
 	private ExecutorService executors;
 	private boolean running = false;
@@ -34,7 +33,7 @@ public class JMSServer implements Runnable {
 	private Queue queue;
 	private Topic topic;
 
-	public JMSServer(Bank localBank) throws NamingException{
+	public JMSServer(BankBase localBank) throws NamingException{
 		this.localBank = localBank;
 		acceptorThread = new Thread(this);
 		executors = Executors.newFixedThreadPool(20);
@@ -71,9 +70,9 @@ public class JMSServer implements Runnable {
 			while(running){
 			    Message request = consumer.receive();
 				try {
-				    System.out.println("Handle: " + request.getBody(byte[].class));
-					sender.send(request.getJMSReplyTo(), "Echo: " + request.getBody(byte[].class));
-				} catch (JMSException e) { e.printStackTrace(); }
+					SocketCommand inputCmd = SocketCommand.fromBytes(request.getBody(byte[].class));
+					executors.submit(new JMSServerHandler(sender, request.getJMSReplyTo(), inputCmd, localBank));
+				} catch (Exception e) { e.printStackTrace(); }
 			}
 		}
 		//Termination Code

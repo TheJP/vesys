@@ -27,10 +27,12 @@ import bank.u01.socket.protocol.CloseAccountCommand;
 import bank.u01.socket.protocol.ClosedAccountCommand;
 import bank.u01.socket.protocol.CreateAccountCommand;
 import bank.u01.socket.protocol.CreatedAccountCommand;
+import bank.u01.socket.protocol.DepositCommand;
 import bank.u01.socket.protocol.GetAccountCommand;
 import bank.u01.socket.protocol.GetAccountNumbersCommand;
 import bank.u01.socket.protocol.SocketCommand;
 import bank.u01.socket.protocol.StatusCommand;
+import bank.u01.socket.protocol.WithdrawCommand;
 import bank.u01.socket.protocol.StatusCommand.StatusId;
 import bank.u01.socket.protocol.TransferCommand;
 
@@ -112,6 +114,80 @@ public class JMSBank implements Bank {
 			throw new OverdrawException();
 		} else if (result.getValue().equals(StatusId.InactiveException.name())) {
 			throw new InactiveException();
+		}
+	}
+
+	public class JMSAccount extends AccountBase {
+
+		private String number;
+		private String owner;
+		private double balance = 0.0;
+		private boolean active = true;
+
+		@Override
+		public String getNumber() throws IOException {
+			return number;
+		}
+
+		@Override
+		public String getOwner() throws IOException {
+			return owner;
+		}
+
+		@Override
+		public boolean isActive() throws IOException {
+			return active;
+		}
+
+		@Override
+		public double getBalance() throws IOException {
+			return balance;
+		}
+
+		@Override
+		public void setNumber(String number) {
+			this.number = number;
+		}
+
+		@Override
+		public void setOwner(String owner) {
+			this.owner = owner;
+		}
+
+		@Override
+		public void setBalance(double balance) {
+			this.balance = balance;
+		}
+
+		@Override
+		public void setActive(boolean active) {
+			this.active = active;
+		}
+
+		@Override
+		public void deposit(double amount) throws IOException,
+				IllegalArgumentException, InactiveException {
+			StatusCommand inputCmd = sendCommand(new DepositCommand(getNumber(), amount));
+			if (inputCmd.getValue().equals(
+					StatusId.IllegalArgumentException.name())) {
+				throw new IllegalArgumentException();
+			} else if (inputCmd.getValue().equals(
+					StatusId.InactiveException.name())) {
+				throw new InactiveException();
+			}
+		}
+
+		@Override
+		public void withdraw(double amount) throws IOException,
+				IllegalArgumentException, OverdrawException, InactiveException {
+			StatusCommand inputCmd = sendCommand(new WithdrawCommand(getNumber(), amount));
+			if (inputCmd.getValue().equals(
+					StatusId.IllegalArgumentException.name())) {
+				throw new IllegalArgumentException();
+			} else if (inputCmd.getValue().equals(
+					StatusId.InactiveException.name())) {
+				throw new InactiveException();
+			}
 		}
 	}
 

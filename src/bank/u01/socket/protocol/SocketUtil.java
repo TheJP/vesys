@@ -1,7 +1,9 @@
 package bank.u01.socket.protocol;
 
+import bank.Bank;
 import bank.u01.socket.SocketBank;
 import bank.u01.socket.protocol.SocketCommand.SocketCommandFactory;
+import bank.u06.jms.JMSBank;
 
 /**
  * Contains a method to create all needed socket factories
@@ -23,7 +25,7 @@ public final class SocketUtil {
 	 * Register recommended commands
 	 * @param localBank Used to create SocketAccounts
 	 */
-	public static void registerCommands(final SocketBank localBank){
+	public static void registerCommands(final Bank localBank){
 		SocketCommand.addCommandFactory(new SocketCommandFactory() {
 			@Override public String getType() { return EchoCommand.TYPE; }
 			@Override public SocketCommand createCommand() { return new EchoCommand(); }
@@ -33,9 +35,12 @@ public final class SocketUtil {
 			@Override public SocketCommand createCommand() {
 				if(localBank == null){
 					return new AccountCommand();
-				}else{
-					return new AccountCommand(localBank.new SocketAccount());
+				}else if(localBank instanceof SocketBank){
+					return new AccountCommand(((SocketBank)localBank).new SocketAccount());
+				}else if(localBank instanceof JMSBank){
+					return new AccountCommand(((JMSBank)localBank).new JMSAccount());
 				}
+				return null;
 			}
 		});
 		SocketCommand.addCommandFactory(new SocketCommandFactory() {

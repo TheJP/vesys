@@ -2,6 +2,7 @@ package bank.u06.jms;
 
 import java.util.Set;
 
+import javax.jms.Destination;
 import javax.jms.JMSProducer;
 
 import bank.Account;
@@ -25,7 +26,6 @@ import bank.u01.socket.protocol.StatusCommand.StatusId;
 import bank.u01.socket.protocol.TransferCommand;
 import bank.u01.socket.protocol.WithdrawCommand;
 
-import com.sun.messaging.Destination;
 
 /**
  * Handles a single client and stops afterwards
@@ -42,9 +42,9 @@ public class JMSServerHandler implements Runnable {
 	 * (May also be a remote bank implementation)
 	 */
 	private BankBase localBank;
-	public JMSServerHandler(JMSProducer sender, Destination destination, SocketCommand inputCmd, BankBase localBank){
+	public JMSServerHandler(JMSProducer sender, Destination destination2, SocketCommand inputCmd, BankBase localBank){
 		this.sender = sender;
-		this.destination = destination;
+		this.destination = destination2;
 		this.inputCmd = inputCmd;
 		this.localBank = localBank;
 	}
