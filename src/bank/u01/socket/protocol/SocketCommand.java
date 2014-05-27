@@ -86,11 +86,10 @@ public abstract class SocketCommand {
 
 	/**
 	 * Converts this command to a byte array
-	 * @param command
 	 * @return
 	 * @throws IOException
 	 */
-	public byte[] toBytes(SocketCommand command) throws IOException{
+	public byte[] toBytes() throws IOException{
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		try(DataOutputStream dout = new DataOutputStream(out)){
 			send(dout);
