@@ -89,13 +89,17 @@ public class WebsocketBank implements Bank {
 
 	@SuppressWarnings("unchecked")
 	protected <T extends SocketCommand> T sendCommand(SocketCommand outputCmd) throws IOException{
+		messageLock.lock();
+		byte[] msg = null;
+		try {
 		//Send request
 		session.getBasicRemote().sendBinary(ByteBuffer.wrap(outputCmd.toBytes()));
 		try { responded.await(); }
 		catch (InterruptedException e) { throw new IOException(e); }
 		//Get response
-		byte[] msg = data;
+		msg = data;
 		gotData.signal();
+		} finally { messageLock.unlock(); }
 		return (T) SocketCommand.fromBytes(msg);
 	}
 

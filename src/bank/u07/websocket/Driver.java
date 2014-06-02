@@ -1,8 +1,13 @@
 package bank.u07.websocket;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import javax.naming.NamingException;
+import javax.websocket.DeploymentException;
+
+import org.glassfish.tyrus.client.ClientManager;
 
 import bank.Bank;
 import bank.BankDriver;
@@ -15,6 +20,11 @@ public class Driver implements BankDriver {
 	@Override
 	public void connect(String[] args) throws IOException {
 		bank = new WebsocketBank();
+		try {
+			final URI url = new URI("ws://localhost:8025/bank/bank");
+			ClientManager client = ClientManager.createClient();
+			client.connectToServer(bank, url);
+		} catch (URISyntaxException | DeploymentException e) { e.printStackTrace(); }
 		SocketUtil.registerCommands(bank);
 	}
 
