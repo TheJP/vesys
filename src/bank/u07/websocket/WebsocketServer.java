@@ -132,7 +132,9 @@ public class WebsocketServer {
      * Sends an update notification to the client.
      */
 	private void update(String accountNr, Session session) throws IOException {
-		session.getBasicRemote().sendText(accountNr);
+		for(Session s : session.getOpenSessions()){
+			s.getBasicRemote().sendText(accountNr);
+		}
 	}
 
 	public static void main(String[] args) {
@@ -163,13 +165,4 @@ public class WebsocketServer {
 			System.exit(0);
 		}
 	}
-/*
-	@Override
-	public void update(String number) {
-		try (JMSContext context = factory.createContext()) {
-			JMSProducer publisher = context.createProducer();
-			publisher.send(topic, number);
-		}
-	}
-*/
 }

@@ -4,17 +4,15 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import javax.naming.NamingException;
 import javax.websocket.DeploymentException;
 
 import org.glassfish.tyrus.client.ClientManager;
 
 import bank.Bank;
-import bank.BankDriver;
 import bank.BankDriver2;
 import bank.u01.socket.protocol.SocketUtil;
 
-public class Driver implements BankDriver {
+public class Driver implements BankDriver2 {
 
 	private WebsocketBank bank;
 	@Override
@@ -38,8 +36,8 @@ public class Driver implements BankDriver {
 		return bank;
 	}
 
-//	@Override
-//	public void registerUpdateHandler(UpdateHandler handler) throws IOException {
-//	}
+	@Override
+	public void registerUpdateHandler(UpdateHandler handler) throws IOException {
+	}
 
 }

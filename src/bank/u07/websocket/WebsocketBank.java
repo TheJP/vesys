@@ -3,6 +3,8 @@ package bank.u07.websocket;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.Condition;
@@ -19,6 +21,7 @@ import javax.websocket.Session;
 import bank.Account;
 import bank.AccountBase;
 import bank.Bank;
+import bank.BankDriver2;
 import bank.InactiveException;
 import bank.OverdrawException;
 import bank.u01.socket.protocol.AccountCommand;
@@ -50,6 +53,10 @@ public class WebsocketBank implements Bank {
 	 * Cached accounts. This hastable assures, that there exists only one instance of every account per account.nr and server
 	 */
 	private final Map<String, AccountBase> accounts = new HashMap<>();
+	/**
+	 * Handlers which have to be notified on account updates
+	 */
+	private final List<BankDriver2.UpdateHandler> updateHandlers = new LinkedList<>();
 
 	public WebsocketBank() {
 		responded = messageLock.newCondition();
@@ -71,7 +78,9 @@ public class WebsocketBank implements Bank {
 	 */
 	@OnMessage
 	public void onMessage(Session session, String message) throws IOException {
-		
+		for(BankDriver2.UpdateHandler handler : updateHandlers){
+			handler.accountChanged(message);
+		}
 	}
 
 	/**
