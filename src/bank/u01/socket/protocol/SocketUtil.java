@@ -4,6 +4,7 @@ import bank.Bank;
 import bank.u01.socket.SocketBank;
 import bank.u01.socket.protocol.SocketCommand.SocketCommandFactory;
 import bank.u06.jms.JMSBank;
+import bank.u07.websocket.WebsocketBank;
 
 /**
  * Contains a method to create all needed socket factories
@@ -39,6 +40,8 @@ public final class SocketUtil {
 					return new AccountCommand(((SocketBank)localBank).new SocketAccount());
 				}else if(localBank instanceof JMSBank){
 					return new AccountCommand(((JMSBank)localBank).new JMSAccount());
+				}else if(localBank instanceof WebsocketBank){
+					return new AccountCommand(((WebsocketBank)localBank).new WebsocketAccount());
 				}
 				return null;
 			}

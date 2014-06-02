@@ -1,5 +1,6 @@
 package bank.u07.websocket;
 
+import java.nio.ByteBuffer;
 import java.util.Scanner;
 
 import javax.naming.NamingException;
@@ -19,7 +20,7 @@ public class WebsocketServer {
 	private BankBase localBank;
 
     @OnMessage
-    public String onMessage(String message, Session session) {
+    public ByteBuffer onMessage(ByteBuffer message, Session session) {
         return message;
     }
 
