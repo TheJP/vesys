@@ -38,6 +38,7 @@ public class Driver implements BankDriver2 {
 
 	@Override
 	public void registerUpdateHandler(UpdateHandler handler) throws IOException {
+		bank.registerUpdateHandler(handler);
 	}
 
 }

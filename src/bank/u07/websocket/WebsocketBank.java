@@ -7,9 +7,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import javax.websocket.ClientEndpoint;
 import javax.websocket.CloseReason;
@@ -43,25 +43,19 @@ import bank.u01.socket.protocol.WithdrawCommand;
 public class WebsocketBank implements Bank {
 
 	//Thread synchronisation
-	private Lock messageLock = new ReentrantLock();
-	private Condition responded;
-	private Condition gotData;
-	private byte[] data = null;
+	BlockingQueue<byte[]> responses = new ArrayBlockingQueue<>(1);
 
 	private Session session = null;
 	/**
 	 * Cached accounts. This hastable assures, that there exists only one instance of every account per account.nr and server
 	 */
-	private final Map<String, AccountBase> accounts = new HashMap<>();
+	private final Map<String, WebsocketAccount> accounts = new HashMap<>();
 	/**
 	 * Handlers which have to be notified on account updates
 	 */
 	private final List<BankDriver2.UpdateHandler> updateHandlers = new LinkedList<>();
 
-	public WebsocketBank() {
-		responded = messageLock.newCondition();
-		gotData = messageLock.newCondition();
-	}
+	public WebsocketBank() { }
 
 	@OnOpen
 	public void onOpen(Session session) throws IOException {
@@ -78,6 +72,7 @@ public class WebsocketBank implements Bank {
 	 */
 	@OnMessage
 	public void onMessage(Session session, String message) throws IOException {
+		accounts.get(message).setOutdated(true);;
 		for(BankDriver2.UpdateHandler handler : updateHandlers){
 			handler.accountChanged(message);
 		}
@@ -88,27 +83,26 @@ public class WebsocketBank implements Bank {
 	 */
 	@OnMessage
 	public void onMessage(Session session, ByteBuffer message) throws IOException {
-		messageLock.lock();
-		data = message.array();
-		responded.signal();
-		try { gotData.await(); }
+		byte[] data = message.array();
+		try { responses.put(data); }
 		catch (InterruptedException e) { throw new IOException(e); }
-		finally { messageLock.unlock(); }
+	}
+
+	/**
+	 * Register handler to receive updates
+	 */
+	public void registerUpdateHandler(BankDriver2.UpdateHandler handler){
+		updateHandlers.add(handler);
 	}
 
 	@SuppressWarnings("unchecked")
 	protected <T extends SocketCommand> T sendCommand(SocketCommand outputCmd) throws IOException{
-		messageLock.lock();
 		byte[] msg = null;
-		try {
 		//Send request
 		session.getBasicRemote().sendBinary(ByteBuffer.wrap(outputCmd.toBytes()));
-		try { responded.await(); }
-		catch (InterruptedException e) { throw new IOException(e); }
 		//Get response
-		msg = data;
-		gotData.signal();
-		} finally { messageLock.unlock(); }
+		try { msg = responses.poll(1, TimeUnit.MINUTES); }
+		catch (InterruptedException e) { throw new IOException(e); }
 		return (T) SocketCommand.fromBytes(msg);
 	}
 
@@ -140,9 +134,11 @@ public class WebsocketBank implements Bank {
 			origin.setBalance(result.getValue().getBalance());
 			origin.setOwner(result.getValue().getOwner());
 		} else {
-			accounts.put(number, result.getValue());
+			accounts.put(number, (WebsocketAccount) result.getValue());
 		}
-		return accounts.get(number);
+		WebsocketAccount account = accounts.get(number);
+		if(account != null){ account.setOutdated(false); }
+		return account;
 	}
 
 	@Override
@@ -171,24 +167,31 @@ public class WebsocketBank implements Bank {
 		private String owner;
 		private double balance = 0.0;
 		private boolean active = true;
+		private boolean outdated = false;
+
+		public void setOutdated(boolean outdated){
+			this.outdated = outdated;
+		}
 
 		@Override
-		public String getNumber() throws IOException {
+		public String getNumber() {
 			return number;
 		}
 
 		@Override
-		public String getOwner() throws IOException {
+		public String getOwner() {
 			return owner;
 		}
 
 		@Override
 		public boolean isActive() throws IOException {
+			if(outdated){ getAccount(getNumber()); }
 			return active;
 		}
 
 		@Override
 		public double getBalance() throws IOException {
+			if(outdated){ getAccount(getNumber()); }
 			return balance;
 		}
 
@@ -236,6 +239,9 @@ public class WebsocketBank implements Bank {
 			} else if (inputCmd.getValue().equals(
 					StatusId.InactiveException.name())) {
 				throw new InactiveException();
+			} else if(inputCmd.getValue().equals(
+					StatusId.OverdrawException.name())){
+				throw new OverdrawException();
 			}
 			getAccount(getNumber());
 		}
